@@ -20,6 +20,7 @@ contract Main is DSAuth, DSMath
     event SetSaleParams(address indexed token, address owner, uint price, uint quantity, uint rebate_rate);
     event PreSale(address indexed token, uint price, uint volume, address user, address inviter, uint rebate);
     event CrowdSell(address indexed token, uint price, uint volume, address user, address inviter, uint rebate);
+    event Claim(address indexed receiver, uint amount);
 
     modifier tokenExists(address token)
     {
@@ -61,6 +62,7 @@ contract Main is DSAuth, DSMath
         uint userBalance = msg.sender.balance;
         msg.sender.transfer(amount);
         require(msg.sender.balance - userBalance == amount, "reentry!");
+        emit Claim(msg.sender, amount);
     }
 
     function presale(address token, address inviter, uint8 v, bytes32 r, bytes32 s) public payable tokenExists(token)
@@ -74,7 +76,6 @@ contract Main is DSAuth, DSMath
 
     function crowdsell(address token, address inviter, uint8 v, bytes32 r, bytes32 s) public payable tokenExists(token)
     {
-        require(_tkn_owners[token] != address(0x00) && _tkn_sale_params[token][0] > 0, "Not yet started, stay tuned.");
         verifySig(token, inviter, v, r, s);
         uint rebate = sell(token, msg.value, msg.sender, inviter);
 
@@ -83,6 +84,7 @@ contract Main is DSAuth, DSMath
 
     function sell(address token, uint msgValue, address msgSender, address inviter) private returns(uint rebate)
     {
+        require(_tkn_owners[token] != address(0x00) && _tkn_sale_params[token][0] > 0, "Not yet started, stay tuned.");
         address token_owner = _tkn_owners[token];
         uint price = _tkn_sale_params[token][0];
         uint rebate_rate = _tkn_sale_params[token][1];
