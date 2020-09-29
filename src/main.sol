@@ -59,15 +59,20 @@ contract Main is DSAuth, DSMath
     {
         require(balances[msg.sender] > 0, "There is no award.");
         require(balances[msg.sender] >= amount, "The balance is insufficient.");
+        
+        balances[msg.sender] -= amount;
         uint userBalance = msg.sender.balance;
         msg.sender.transfer(amount);
+        
         require(msg.sender.balance - userBalance == amount, "reentry!");
+        
         emit Claim(msg.sender, amount);
     }
 
     function presale(address token, address inviter, uint8 v, bytes32 r, bytes32 s) public payable tokenExists(token)
     {
         require(_tkn_whl[token][msg.sender], "please appoint first!");
+        
         verifySig(token, inviter, v, r, s);
         uint rebate = sell(token, msg.value, msg.sender, inviter);
 
