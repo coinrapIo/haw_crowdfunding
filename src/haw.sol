@@ -7,17 +7,16 @@ import "ds-auth/auth.sol";
 contract HawToken is DSMath, DSAuth {
     bool                                              public  stopped;
     uint256                                           public  totalSupply;
-    uint256                                           public  circulatingSupply;
+    uint256                                           public  circulatingSupply = 0;
     mapping (address => uint256)                      public  balanceOf;
     mapping (address => mapping (address => uint256)) public  allowance;
     bytes32                                           public  symbol;
     uint256                                           public  decimals = 18; // standard token precision. override to customize
     bytes32                                           public  name = "";     // Optional token name
 
-    constructor(bytes32 symbol_, uint256 totalSupply_, uint circulatingSupply_) public {
+    constructor(bytes32 symbol_, uint256 totalSupply_) public {
         symbol = symbol_;
         totalSupply = totalSupply_;
-        circulatingSupply = circulatingSupply_;
     }
 
     event Approval(address indexed src, address indexed guy, uint wad);
@@ -89,7 +88,7 @@ contract HawToken is DSMath, DSAuth {
     }
 
     function mint(address guy, uint wad) public auth stoppable {
-        require(totalSupply < add(circulatingSupply, wad), "to reach uplimit of mint!");
+        require(totalSupply >= add(circulatingSupply, wad), "to reach uplimit of mint!");
         balanceOf[guy] = add(balanceOf[guy], wad);
         circulatingSupply = add(circulatingSupply, wad);
         emit Mint(guy, wad);
