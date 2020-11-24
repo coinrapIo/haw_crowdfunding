@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.6.7;
 
 import "ds-token/token.sol";
 import "ds-auth/auth.sol";
@@ -46,13 +46,9 @@ contract Main is DSAuth, DSMath
         
     }
 
-    constructor() DSAuth() public 
+    constructor() DSAuth() payable public 
     {
 
-    }
-
-    function () external payable
-    {
     }
 
     function claim(uint amount) public 
